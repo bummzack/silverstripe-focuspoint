@@ -1,0 +1,7 @@
+mappings:
+  FocusPointField: Jonom\FocusPoint\Forms\FocusPointField
+  FocusPointImage: Jonom\FocusPoint\Extensions\FocusPointImage
+#  FPImage: Jonom\FocusPoint\FPImage
+#  FPImage_Cached: Jonom\FocusPoint\FPImage_Cached
+#  FPImagickBackend: Jonom\FocusPoint\FPImagickBackend
+  FocusPointTest: Jonom\FocusPoint\FocusPointTest

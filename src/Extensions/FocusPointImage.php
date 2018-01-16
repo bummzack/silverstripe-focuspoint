@@ -1,5 +1,14 @@
 <?php
 
+namespace Jonom\FocusPoint\Extensions;
+
+use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Assets\Image_Backend;
+use SilverStripe\View\Requirements;
+
+
 /**
  * FocusPoint Image extension.
  * Extends Image to allow automatic cropping from a selected focus point.

@@ -1,5 +1,13 @@
 <?php
 
+namespace Jonom\FocusPoint\Tests;
+
+use SilverStripe\Dev\SapphireTest;
+use SilverStripe\Assets\Image;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Assets\Filesystem;
+
+
 class FocusPointTest extends SapphireTest
 {
     protected static $fixture_file = 'FocusPointTest.yml';
