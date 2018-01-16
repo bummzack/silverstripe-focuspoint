@@ -4,3 +4,7 @@ Name: focuspoint
 SilverStripe\Assets\Image:
   extensions:
     - Jonom\FocusPoint\Extensions\FocusPointImage
+
+SilverStripe\Admin\LeftAndMain:
+  extensions:
+    - Jonom\FocusPoint\Extensions\LeftAndMainExtension
