@@ -5,6 +5,10 @@ SilverStripe\Assets\Image:
   extensions:
     - Jonom\FocusPoint\Extensions\FocusPointImage
 
+SilverStripe\AssetAdmin\Forms\ImageFormFactory:
+  extensions:
+    - Jonom\FocusPoint\Extensions\ImageFormFactoryExtension
+
 SilverStripe\Admin\LeftAndMain:
   extensions:
     - Jonom\FocusPoint\Extensions\LeftAndMainExtension

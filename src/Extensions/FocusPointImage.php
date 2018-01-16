@@ -19,23 +19,11 @@ use SilverStripe\View\Requirements;
 class FocusPointImage extends DataExtension
 {
     /**
-     * Describes the focus point coordinates on the image.
-     * FocusX: Decimal number between -1 & 1, where -1 is far left, 0 is center, 1 is far right.
-     * FocusY: Decimal number between -1 & 1, where -1 is bottom, 0 is center, 1 is top.
+     * TODO: Provide migration script to move from the two single fields to the composite-field
      */
     private static $db = [
-        'FocusX' => 'Double',
-        'FocusY' => 'Double',
+        'FocusPoint' => 'FocusPoint'
     ];
-
-    /**
-     * Preserve default behaviour of cropping from center.
-     */
-    private static $defaults = [
-        'FocusX' => '0',
-        'FocusY' => '0',
-    ];
-
 
     /**
      * Generate a label describing the focus point on a 3x3 grid e.g. 'focus-bottom-left'
@@ -50,17 +38,19 @@ class FocusPointImage extends DataExtension
         $horzFocus = 'center';
         $vertFocus = 'center';
 
+        $focus = $this->owner->getField('FocusPoint');
+
         // Calculate based on XY coords
-        if ($this->owner->FocusX > .333) {
+        if ($focus->getFocusX() > .333) {
             $horzFocus = 'right';
         }
-        if ($this->owner->FocusX < -.333) {
+        if ($focus->getFocusX() < -.333) {
             $horzFocus = 'left';
         }
-        if ($this->owner->FocusY > .333) {
+        if ($focus->getFocusY() > .333) {
             $vertFocus = 'top';
         }
-        if ($this->owner->FocusY < -.333) {
+        if ($focus->getFocusY() < -.333) {
             $vertFocus = 'bottom';
         }
 
@@ -77,7 +67,7 @@ class FocusPointImage extends DataExtension
      */
     public function PercentageX()
     {
-        return round($this->focusCoordToOffset('x', $this->owner->FocusX) * 100);
+        return round($this->focusCoordToOffset('x', $this->owner->getField('FocusPoint')->getFocusX() * 100));
     }
 
     /**
@@ -89,7 +79,7 @@ class FocusPointImage extends DataExtension
      */
     public function PercentageY()
     {
-        return round($this->focusCoordToOffset('y', $this->owner->FocusY) * 100);
+        return round($this->focusCoordToOffset('y', $this->owner->getField('FocusPoint')->getFocusY() * 100));
     }
 
     public function DebugFocusPoint()
@@ -129,12 +119,12 @@ class FocusPointImage extends DataExtension
             'CropOffset' => 0,
         );
         $cropData['x'] = array(
-            'FocusPoint' => $this->owner->FocusX,
+            'FocusPoint' => $this->owner->getField('FocusPoint')->getFocusX(),
             'OriginalLength' => $this->owner->getWidth(),
             'TargetLength' => round($width),
         );
         $cropData['y'] = array(
-            'FocusPoint' => $this->owner->FocusY,
+            'FocusPoint' => $this->owner->getField('FocusPoint')->getFocusY(),
             'OriginalLength' => $this->owner->getHeight(),
             'TargetLength' => round($height),
         );
@@ -298,8 +288,9 @@ class FocusPointImage extends DataExtension
             }
 
             // Update FocusPoint
-            $img->FocusX = $cropData['x']['FocusPoint'];
-            $img->FocusY = $cropData['y']['FocusPoint'];
+            $img->dbObject('FocusPoint')
+                ->setFocusX($cropData['x']['FocusPoint'])
+                ->setFocusY($cropData['y']['FocusPoint']);
 
             return $img;
         });

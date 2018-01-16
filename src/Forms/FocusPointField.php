@@ -2,13 +2,7 @@
 
 namespace Jonom\FocusPoint\Forms;
 
-use SilverStripe\Forms\FieldGroup;
-use SilverStripe\Assets\Image;
-use SilverStripe\View\Requirements;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\TextField;
-use SilverStripe\Control\Director;
-
+use SilverStripe\Forms\FormField;
 
 
 /**
@@ -17,7 +11,7 @@ use SilverStripe\Control\Director;
  *
  * @extends FieldGroup
  */
-class FocusPointField extends FieldGroup
+class FocusPointField extends FormField
 {
     /**
      * Enable to view Focus X and Focus Y fields while in Dev mode.
@@ -43,28 +37,7 @@ class FocusPointField extends FieldGroup
      */
     private static $max_height = 150;
 
-    public function __construct(Image $image)
-    {
-        // Load necessary scripts and styles
-        //Requirements::javascript(FRAMEWORK_DIR.'/thirdparty/jquery/jquery.js');
-        //Requirements::javascript(FRAMEWORK_DIR.'/thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
-        //Requirements::javascript(FOCUSPOINT_DIR.'/javascript/FocusPointField.js');
-        //Requirements::css(FOCUSPOINT_DIR.'/css/FocusPointField.css');
+    protected $schemaDataType = self::SCHEMA_DATA_TYPE_CUSTOM;
 
-        // Create the fields
-        $previewImage = $image->FitMax($this->config()->get('max_width'), $this->config()->get('max_height'));
-        $fields = [
-            LiteralField::create('FocusPointGrid', $previewImage->renderWith(FocusPointField::class)),
-            TextField::create('FocusX'),
-            TextField::create('FocusY'),
-        ];
-        $this->setName('FocusPoint');
-        $this->setTitle(_t('Jonom\FocusPoint\Forms\FocusPointField.FOCUSPOINT','Focus Point'));
-        $this->addExtraClass('focuspoint-fieldgroup');
-        if (Director::isDev() && $this->config()->get('debug')) {
-            $this->addExtraClass('debug');
-        }
-
-        parent::__construct($fields);
-    }
+    protected $schemaComponent = 'FocusPointField';
 }
