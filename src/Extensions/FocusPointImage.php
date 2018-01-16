@@ -2,10 +2,10 @@
 
 namespace Jonom\FocusPoint\Extensions;
 
-use SilverStripe\Core\Config\Config;
-use SilverStripe\ORM\DataExtension;
-use SilverStripe\Forms\FieldList;
+use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Image_Backend;
+use SilverStripe\Assets\Storage\AssetContainer;
+use SilverStripe\ORM\DataExtension;
 use SilverStripe\View\Requirements;
 
 
@@ -14,6 +14,7 @@ use SilverStripe\View\Requirements;
  * Extends Image to allow automatic cropping from a selected focus point.
  *
  * @extends DataExtension
+ * @property Image owner
  */
 class FocusPointImage extends DataExtension
 {
@@ -22,48 +23,19 @@ class FocusPointImage extends DataExtension
      * FocusX: Decimal number between -1 & 1, where -1 is far left, 0 is center, 1 is far right.
      * FocusY: Decimal number between -1 & 1, where -1 is bottom, 0 is center, 1 is top.
      */
-    private static $db = array(
+    private static $db = [
         'FocusX' => 'Double',
         'FocusY' => 'Double',
-    );
+    ];
 
     /**
      * Preserve default behaviour of cropping from center.
      */
-    private static $defaults = array(
+    private static $defaults = [
         'FocusX' => '0',
         'FocusY' => '0',
-    );
+    ];
 
-    /**
-     * @var bool
-     * @config
-     */
-    private static $flush_on_change = false;
-
-    /**
-     * Add FocusPoint field for selecting focus.
-     */
-    public function updateCMSFields(FieldList $fields)
-    {
-        $f = new FocusPointField($this->owner);
-        if ($fields->hasTabSet()) {
-            $fields->addFieldToTab('Root.Main', $f);
-        } else {
-            $fields->add($f);
-        }
-    }
-
-    public function onBeforeWrite()
-    {
-        if (
-            Config::inst()->get(__CLASS__, 'flush_on_change')
-            && ($this->owner->isChanged('FocusX') || $this->owner->isChanged('FocusY'))
-        ) {
-            $this->owner->deleteFormattedImages();
-        }
-        parent::onBeforeWrite();
-    }
 
     /**
      * Generate a label describing the focus point on a 3x3 grid e.g. 'focus-bottom-left'
@@ -124,7 +96,7 @@ class FocusPointImage extends DataExtension
     {
         Requirements::css('focuspoint/css/focuspoint-debug.css');
 
-        return $this->owner->renderWith('FocusPointDebug');
+        return $this->owner->renderWith('Jonom/FocusPoint/FocusPointDebug');
     }
 
     public function focusCoordToOffset($axis, $coord)
@@ -219,29 +191,17 @@ class FocusPointImage extends DataExtension
     }
 
     /**
-     * Get an image for the focus point CMS field.
-     *
-     * @return Image|null
-     * @deprecated 3.0
-     */
-    public function FocusPointFieldImage()
-    {
-        // Use same image as CMS preview to save generating a new image - copied from File::getCMSFields()
-        return $this->owner->ScaleWidth(Config::inst()->get('Image', 'asset_preview_width'));
-    }
-
-    /**
      * Resize and crop image to fill specified dimensions, centred on focal point
      * of image. Use in templates with $FocusFill.
      *
      * @param int $width  Width to crop to
      * @param int $height Height to crop to
      *
-     * @return Image|null
+     * @return AssetContainer|null
      */
     public function FocusFill($width, $height)
     {
-        return $this->owner->CroppedFocusedImage($width, $height, $upscale = true);
+        return $this->CroppedFocusedImage($width, $height, $upscale = true);
     }
 
     /**
@@ -253,24 +213,24 @@ class FocusPointImage extends DataExtension
      * @param int $width  Width to crop to
      * @param int $height Height to crop to
      *
-     * @return Image|null
+     * @return AssetContainer|null
      */
     public function FocusFillMax($width, $height)
     {
-        return $this->owner->CroppedFocusedImage($width, $height, $upscale = false);
+        return $this->CroppedFocusedImage($width, $height, $upscale = false);
     }
 
     public function FocusCropWidth($width)
     {
         return ($this->owner->getWidth() > $width)
-            ? $this->owner->CroppedFocusedImage($width, $this->owner->getHeight())
+            ? $this->CroppedFocusedImage($width, $this->owner->getHeight())
             : $this->owner;
     }
 
     public function FocusCropHeight($height)
     {
         return ($this->owner->getHeight() > $height)
-            ? $this->owner->CroppedFocusedImage($this->owner->getWidth(), $height)
+            ? $this->CroppedFocusedImage($this->owner->getWidth(), $height)
             : $this->owner;
     }
 
@@ -283,29 +243,56 @@ class FocusPointImage extends DataExtension
      * @param int  $height  Height to crop to
      * @param bool $upscale Will prevent upscaling if set to false
      *
-     * @return Image|null
+     * @return AssetContainer|null
      */
     public function CroppedFocusedImage($width, $height, $upscale = true)
     {
-        $width = intval($width);
-        $height = intval($height);
+        $width = $this->owner->castDimension($width, 'Width');
+        $height = $this->owner->castDimension($height, 'Height');
+
+        $originalWidth = $this->owner->getWidth();
+        $originalHeight = $this->owner->getHeight();
+
         // Don't enlarge
         if (!$upscale) {
-            $widthRatio = $this->owner->width / $width;
-            $heightRatio = $this->owner->height / $height;
+            $widthRatio = $originalWidth / $width;
+            $heightRatio = $originalHeight / $height;
             if ($widthRatio < 1 && $widthRatio <= $heightRatio) {
-                $width = $this->owner->width;
+                $width = $originalWidth;
                 $height = round($height * $widthRatio);
             } elseif ($heightRatio < 1) {
-                $height = $this->owner->height;
+                $height = $originalHeight;
                 $width = round($width * $heightRatio);
             }
         }
-        //Only resize if necessary
-        if ($this->owner->isSize($width, $height) && !Config::inst()->get('Image', 'force_resample')) {
+
+        if ($this->owner->isSize($width, $height)) {
             return $this->owner;
-        } elseif ($cropData = $this->calculateCrop($width, $height)) {
-            $img = $this->owner->getFormattedImage('CroppedFocusedImage', $width, $height, $cropData['CropAxis'], $cropData['CropOffset']);
+        }
+
+        $variant = $this->owner->variantName(__FUNCTION__, $width, $height);
+        $cropData = $this->calculateCrop($width, $height);
+
+        return $this->owner->manipulateImage($variant, function (Image_Backend $backend) use ($width, $height, $cropData) {
+            $img = null;
+            $cropAxis = $cropData['CropAxis'];
+            $cropOffset = $cropData['CropOffset'];
+
+            if ($cropAxis == 'x') {
+                //Generate image
+                $img = $backend
+                    ->resizeByHeight($height)
+                    ->crop(0, $cropOffset, $width, $height);
+            } elseif ($cropAxis == 'y') {
+                //Generate image
+                $img = $backend
+                    ->resizeByWidth($width)
+                    ->crop($cropOffset, 0, $width, $height);
+            } else {
+                //Generate image without cropping
+                $img = $backend->resize($width, $height);
+            }
+
             if (!$img) {
                 return null;
             }
@@ -315,31 +302,6 @@ class FocusPointImage extends DataExtension
             $img->FocusY = $cropData['y']['FocusPoint'];
 
             return $img;
-        }
-    }
-
-    /**
-     * @param Image_Backend $backend
-     * @param int           $width   Width to crop to
-     * @param int           $height  Height to crop to
-     *
-     * @return Image_Backend
-     */
-    public function generateCroppedFocusedImage(Image_Backend $backend, $width, $height, $cropAxis, $cropOffset)
-    {
-        if ($cropAxis == 'x') {
-            //Generate image
-            return $backend
-                ->resizeByHeight($height)
-                ->crop(0, $cropOffset, $width, $height);
-        } elseif ($cropAxis == 'y') {
-            //Generate image
-            return $backend
-                ->resizeByWidth($width)
-                ->crop($cropOffset, 0, $width, $height);
-        } else {
-            //Generate image without cropping
-            return $backend->resize($width, $height);
-        }
+        });
     }
 }
