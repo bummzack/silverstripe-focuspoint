@@ -4,12 +4,10 @@ namespace Jonom\FocusPoint\Tests;
 
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Folder;
+use SilverStripe\Assets\Image;
 use SilverStripe\Assets\InterventionBackend;
 use SilverStripe\Assets\Tests\Storage\AssetStoreTest\TestAssetStore;
 use SilverStripe\Dev\SapphireTest;
-use SilverStripe\Assets\Image;
-use SilverStripe\ORM\DataObject;
-use SilverStripe\Assets\Filesystem;
 
 
 class FocusPointTest extends SapphireTest
