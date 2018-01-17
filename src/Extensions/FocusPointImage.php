@@ -237,8 +237,8 @@ class FocusPointImage extends DataExtension
      */
     public function CroppedFocusedImage($width, $height, $upscale = true)
     {
-        $width = $this->owner->castDimension($width, 'Width');
-        $height = $this->owner->castDimension($height, 'Height');
+        $width = intval($width);
+        $height = intval($height);
 
         $originalWidth = $this->owner->getWidth();
         $originalHeight = $this->owner->getHeight();
@@ -249,10 +249,10 @@ class FocusPointImage extends DataExtension
             $heightRatio = $originalHeight / $height;
             if ($widthRatio < 1 && $widthRatio <= $heightRatio) {
                 $width = $originalWidth;
-                $height = round($height * $widthRatio);
+                $height = (int)round($height * $widthRatio);
             } elseif ($heightRatio < 1) {
                 $height = $originalHeight;
-                $width = round($width * $heightRatio);
+                $width = (int)round($width * $heightRatio);
             }
         }
 
@@ -260,8 +260,8 @@ class FocusPointImage extends DataExtension
             return $this->owner;
         }
 
-        $variant = $this->owner->variantName(__FUNCTION__, $width, $height);
         $cropData = $this->calculateCrop($width, $height);
+        $variant = $this->owner->variantName(__FUNCTION__, $width, $height, $cropData['CropAxis'], $cropData['CropOffset']);
 
         return $this->owner->manipulateImage($variant, function (Image_Backend $backend) use ($width, $height, $cropData) {
             $img = null;
@@ -287,10 +287,12 @@ class FocusPointImage extends DataExtension
                 return null;
             }
 
+            /*
             // Update FocusPoint
             $img->dbObject('FocusPoint')
                 ->setFocusX($cropData['x']['FocusPoint'])
                 ->setFocusY($cropData['y']['FocusPoint']);
+            */
 
             return $img;
         });

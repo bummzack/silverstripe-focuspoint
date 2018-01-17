@@ -6,6 +6,7 @@ SilverStripe\Assets\Image:
     Title: PNG w left/top focus point
     Name: pngTestImage.png
     FileFilename: folder/pngTestImage.png
+    FileHash: 9c2e4494af6f4b01a590d82dbaa44f6be8b63f05
     Parent: =>SilverStripe\Assets\Folder.folder1
     FocusPointFocusX: -.25
     FocusPointFocusY: .25
@@ -13,6 +14,7 @@ SilverStripe\Assets\Image:
     Title: PNG w right/top focus point
     Name: pngTestImage.png
     FileFilename: folder/pngTestImage.png
+    FileHash: 9c2e4494af6f4b01a590d82dbaa44f6be8b63f05
     Parent: =>SilverStripe\Assets\Folder.folder1
     FocusPointFocusX: .25
     FocusPointFocusY: .25
@@ -20,6 +22,7 @@ SilverStripe\Assets\Image:
     Title: PNG w right/bottom focus point
     Name: pngTestImage.png
     FileFilename: folder/pngTestImage.png
+    FileHash: 9c2e4494af6f4b01a590d82dbaa44f6be8b63f05
     Parent: =>SilverStripe\Assets\Folder.folder1
     FocusPointFocusX: .25
     FocusPointFocusY: -.25
@@ -27,6 +30,7 @@ SilverStripe\Assets\Image:
     Title: PNG w left/bottom focus point
     Name: pngTestImage.png
     FileFilename: folder/pngTestImage.png
+    FileHash: 9c2e4494af6f4b01a590d82dbaa44f6be8b63f05
     Parent: =>SilverStripe\Assets\Folder.folder1
     FocusPointFocusX: -.25
     FocusPointFocusY: -.25

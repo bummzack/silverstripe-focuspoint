@@ -20,8 +20,8 @@ class FocusPointTest extends SapphireTest
     {
         parent::setUp();
 
-        // Set backend root to /ImageTest
-        TestAssetStore::activate('ImageTest');
+        // Set backend root to /images
+        TestAssetStore::activate('images');
 
         // Copy test images for each of the fixture references
         /** @var File $image */
@@ -51,28 +51,28 @@ class FocusPointTest extends SapphireTest
     public function Images()
     {
         $pngLeftTop = $this->objFromFixture(Image::class, 'pngLeftTop');
-        $pngLeftTop->VerticalSliceTopLeftColor = 'ff0000';
-        $pngLeftTop->VerticalSliceBottomRightColor = '00ff00';
-        $pngLeftTop->HorizontalSliceTopLeftColor = 'ff0000';
-        $pngLeftTop->HorizontalSliceBottomRightColor = 'ffff00';
+        $pngLeftTop->VerticalSliceTopLeftColor = '#ff0000';
+        $pngLeftTop->VerticalSliceBottomRightColor = '#00ff00';
+        $pngLeftTop->HorizontalSliceTopLeftColor = '#ff0000';
+        $pngLeftTop->HorizontalSliceBottomRightColor = '#ffff00';
 
         $pngRightTop = $this->objFromFixture(Image::class, 'pngRightTop');
-        $pngRightTop->VerticalSliceTopLeftColor = 'ffff00';
-        $pngRightTop->VerticalSliceBottomRightColor = '0000ff';
-        $pngRightTop->HorizontalSliceTopLeftColor = 'ff0000';
-        $pngRightTop->HorizontalSliceBottomRightColor = 'ffff00';
+        $pngRightTop->VerticalSliceTopLeftColor = '#ffff00';
+        $pngRightTop->VerticalSliceBottomRightColor = '#0000ff';
+        $pngRightTop->HorizontalSliceTopLeftColor = '#ff0000';
+        $pngRightTop->HorizontalSliceBottomRightColor = '#ffff00';
 
         $pngRightBottom = $this->objFromFixture(Image::class, 'pngRightBottom');
-        $pngRightBottom->VerticalSliceTopLeftColor = 'ffff00';
-        $pngRightBottom->VerticalSliceBottomRightColor = '0000ff';
-        $pngRightBottom->HorizontalSliceTopLeftColor = '00ff00';
-        $pngRightBottom->HorizontalSliceBottomRightColor = '0000ff';
+        $pngRightBottom->VerticalSliceTopLeftColor = '#ffff00';
+        $pngRightBottom->VerticalSliceBottomRightColor = '#0000ff';
+        $pngRightBottom->HorizontalSliceTopLeftColor = '#00ff00';
+        $pngRightBottom->HorizontalSliceBottomRightColor = '#0000ff';
 
         $pngLeftBottom = $this->objFromFixture(Image::class, 'pngLeftBottom');
-        $pngLeftBottom->VerticalSliceTopLeftColor = 'ff0000';
-        $pngLeftBottom->VerticalSliceBottomRightColor = '00ff00';
-        $pngLeftBottom->HorizontalSliceTopLeftColor = '00ff00';
-        $pngLeftBottom->HorizontalSliceBottomRightColor = '0000ff';
+        $pngLeftBottom->VerticalSliceTopLeftColor = '#ff0000';
+        $pngLeftBottom->VerticalSliceBottomRightColor = '#00ff00';
+        $pngLeftBottom->HorizontalSliceTopLeftColor = '#00ff00';
+        $pngLeftBottom->HorizontalSliceBottomRightColor = '#0000ff';
 
         return array($pngLeftTop, $pngRightTop, $pngRightBottom, $pngLeftBottom);
     }
@@ -86,18 +86,18 @@ class FocusPointTest extends SapphireTest
             // Crop a vertical slice
             $croppedVert = $img->FocusFill(1, 50);
             $this->assertTrue($croppedVert->isSize(1, 50));
-            $im = imagecreatefrompng($croppedVert->getFullPath());
-            $leftTopColor = str_pad(dechex(imagecolorat($im, 0, 0)), 6, '0', STR_PAD_LEFT);
-            $bottomRightColor = str_pad(dechex(imagecolorat($im, 0, 49)), 6, '0', STR_PAD_LEFT);
+            $im = $croppedVert->getImageBackend()->getImageResource();
+            $leftTopColor = $im->pickColor(0, 0, 'hex');
+            $bottomRightColor =  $im->pickColor(0, 49, 'hex');
             $this->assertEquals($img->VerticalSliceTopLeftColor, $leftTopColor);
             $this->assertEquals($img->VerticalSliceBottomRightColor, $bottomRightColor);
 
             // Crop a horizontal slice
             $croppedHorz = $img->FocusFill(50, 1);
             $this->assertTrue($croppedHorz->isSize(50, 1));
-            $im = imagecreatefrompng($croppedHorz->getFullPath());
-            $leftTopColor = str_pad(dechex(imagecolorat($im, 0, 0)), 6, '0', STR_PAD_LEFT);
-            $bottomRightColor = str_pad(dechex(imagecolorat($im, 49, 0)), 6, '0', STR_PAD_LEFT);
+            $im = $croppedHorz->getImageBackend()->getImageResource();
+            $leftTopColor = $im->pickColor(0, 0, 'hex');
+            $bottomRightColor = $im->pickColor(49, 0, 'hex');
             $this->assertEquals($img->HorizontalSliceTopLeftColor, $leftTopColor);
             $this->assertEquals($img->HorizontalSliceBottomRightColor, $bottomRightColor);
 
@@ -114,18 +114,18 @@ class FocusPointTest extends SapphireTest
             // Crop a vertical slice
             $croppedVert = $img->FocusFillMax(1, 50);
             $this->assertTrue($croppedVert->isSize(1, 50));
-            $im = imagecreatefrompng($croppedVert->getFullPath());
-            $leftTopColor = str_pad(dechex(imagecolorat($im, 0, 0)), 6, '0', STR_PAD_LEFT);
-            $bottomRightColor = str_pad(dechex(imagecolorat($im, 0, 49)), 6, '0', STR_PAD_LEFT);
+            $im = $croppedVert->getImageBackend()->getImageResource();
+            $leftTopColor = $im->pickColor(0, 0, 'hex');
+            $bottomRightColor = $im->pickColor(0, 49, 'hex');
             $this->assertEquals($img->VerticalSliceTopLeftColor, $leftTopColor);
             $this->assertEquals($img->VerticalSliceBottomRightColor, $bottomRightColor);
 
             // Crop a horizontal slice
             $croppedHorz = $img->FocusFillMax(50, 1);
             $this->assertTrue($croppedHorz->isSize(50, 1));
-            $im = imagecreatefrompng($croppedHorz->getFullPath());
-            $leftTopColor = str_pad(dechex(imagecolorat($im, 0, 0)), 6, '0', STR_PAD_LEFT);
-            $bottomRightColor = str_pad(dechex(imagecolorat($im, 49, 0)), 6, '0', STR_PAD_LEFT);
+            $im = $croppedHorz->getImageBackend()->getImageResource();
+            $leftTopColor = $im->pickColor(0, 0, 'hex');
+            $bottomRightColor = $im->pickColor(49, 0, 'hex');
             $this->assertEquals($img->HorizontalSliceTopLeftColor, $leftTopColor);
             $this->assertEquals($img->HorizontalSliceBottomRightColor, $bottomRightColor);
 
@@ -134,18 +134,18 @@ class FocusPointTest extends SapphireTest
             // Crop a vertical slice
             $croppedVert = $img->FocusFillMax(1, 200);
             $this->assertTrue($croppedVert->isSize(1, 100));
-            $im = imagecreatefrompng($croppedVert->getFullPath());
-            $leftTopColor = str_pad(dechex(imagecolorat($im, 0, 0)), 6, '0', STR_PAD_LEFT);
-            $bottomRightColor = str_pad(dechex(imagecolorat($im, 0, 99)), 6, '0', STR_PAD_LEFT);
+            $im = $croppedVert->getImageBackend()->getImageResource();
+            $leftTopColor = $im->pickColor(0, 0, 'hex');
+            $bottomRightColor = $im->pickColor(0, 99, 'hex');
             $this->assertEquals($img->VerticalSliceTopLeftColor, $leftTopColor);
             $this->assertEquals($img->VerticalSliceBottomRightColor, $bottomRightColor);
 
             // Crop a horizontal slice
             $croppedHorz = $img->FocusFillMax(200, 1);
             $this->assertTrue($croppedHorz->isSize(100, 1));
-            $im = imagecreatefrompng($croppedHorz->getFullPath());
-            $leftTopColor = str_pad(dechex(imagecolorat($im, 0, 0)), 6, '0', STR_PAD_LEFT);
-            $bottomRightColor = str_pad(dechex(imagecolorat($im, 99, 0)), 6, '0', STR_PAD_LEFT);
+            $im = $croppedHorz->getImageBackend()->getImageResource();
+            $leftTopColor = $im->pickColor(0, 0, 'hex');
+            $bottomRightColor = $im->pickColor(99, 0, 'hex');
             $this->assertEquals($img->HorizontalSliceTopLeftColor, $leftTopColor);
             $this->assertEquals($img->HorizontalSliceBottomRightColor, $bottomRightColor);
 
