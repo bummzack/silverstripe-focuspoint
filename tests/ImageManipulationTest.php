@@ -157,11 +157,11 @@ class ImageManipulationTest extends SapphireTest
 
         $pngLeftTop->FocusPoint->setX(0)->setY(0.5);
         $this->assertEquals(50, $pngLeftTop->PercentageX());
-        $this->assertEquals(75, $pngLeftTop->PercentageY());
+        $this->assertEquals(25, $pngLeftTop->PercentageY());
 
         $pngLeftTop->FocusPoint->setX(1)->setY(-1);
         $this->assertEquals(100, $pngLeftTop->PercentageX());
-        $this->assertEquals(0, $pngLeftTop->PercentageY());
+        $this->assertEquals(100, $pngLeftTop->PercentageY());
     }
 
     public function testImageChaining()

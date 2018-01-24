@@ -59,7 +59,7 @@ class FocusPointMigrationTask extends MigrationTask
 
             $query = SQLUpdate::create("\"$imageTable\"")
                 ->assignSQL($newColumnX, $oldColumnX)
-                ->assignSQL($newColumnY, "$oldColumnY * -1");
+                ->assignSQL($newColumnY, "$oldColumnY");
 
             $query->execute();
 

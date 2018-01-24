@@ -18,7 +18,7 @@ class DBFocusPoint extends DBComposite
     /**
      * Describes the focus point coordinates on an image.
      * FocusX: Decimal number between -1 & 1, where -1 is far left, 0 is center, 1 is far right.
-     * FocusY: Decimal number between -1 & 1, where -1 is top, 0 is center, 1 is bottom.
+     * FocusY: Decimal number between -1 & 1, where -1 is bottom, 0 is center, 1 is top.
      */
     private static $composite_db = [
         'X' => 'Double',
@@ -47,7 +47,7 @@ class DBFocusPoint extends DBComposite
 
     /**
      * Focus Y
-     * @return double Decimal number between -1 & 1, where -1 is top, 0 is center, 1 is bottom.
+     * @return double Decimal number between -1 & 1, where -1 is bottom, 0 is center, 1 is top.
      */
     public function getY()
     {
@@ -86,21 +86,29 @@ class DBFocusPoint extends DBComposite
 
     /**
      * Turn a focus x/y coordinate in to an offset from left or top
+     * @param string $axis either 'x' or 'y' axis
      * @param double $coord the coordinate to transform
      * @return double
      */
-    public static function focusCoordToOffset($coord)
+    public static function focusCoordToOffset($axis, $coord)
     {
+        if ($axis === 'y') {
+            return ($coord - 1) * -0.5;
+        }
         return ($coord + 1) * 0.5;
     }
 
     /**
      * Turn a left/top offset in to a focus x/y coordinate
+     * @param string $axis either 'x' or 'y' axis
      * @param double $offset the offset to transform
      * @return double
      */
-    public static function focusOffsetToCoord($offset)
+    public static function focusOffsetToCoord($axis, $offset)
     {
+        if ($axis === 'y') {
+            return $offset * -2 + 1;
+        }
         return $offset * 2 - 1;
     }
 
@@ -156,7 +164,7 @@ class DBFocusPoint extends DBComposite
         // Adjust dimensions for cropping
         if ($cropAxis) {
             // Focus point offset
-            $focusOffset = $this->focusCoordToOffset($cropData[$cropAxis]['FocusPoint']);
+            $focusOffset = self::focusCoordToOffset($cropAxis, $cropData[$cropAxis]['FocusPoint']);
             // Length after scaling but before cropping
             $scaledImageLength = floor($cropData[$cropAxis]['OriginalLength'] / $scaleRatio);
             // Focus point position in pixels
@@ -178,7 +186,7 @@ class DBFocusPoint extends DBComposite
             $cropData['CropOffset'] = $focusShift;
             // Update Focus point location for cropped image
             $newFocusOffset = ($focusPos - $focusShift) / $cropData[$cropAxis]['TargetLength'];
-            $cropData[$cropAxis]['FocusPoint'] = $this->focusOffsetToCoord($newFocusOffset);
+            $cropData[$cropAxis]['FocusPoint'] = self::focusOffsetToCoord($cropAxis, $newFocusOffset);
         }
 
         return $cropData;

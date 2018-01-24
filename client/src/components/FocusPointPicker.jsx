@@ -23,7 +23,7 @@ class FocusPointPicker extends Component {
     if (typeof this.props.onChange === 'function') {
       this.props.onChange({
         focusX: (x * 2 / width) - 1,
-        focusY: (y * 2 / height) - 1
+        focusY: (y * -2 / height) + 1
       });
     }
   }
@@ -40,7 +40,7 @@ class FocusPointPicker extends Component {
     const {width, height, imageUrl, tooltip, className} = this.props;
     const style = {
       left: Math.round((focusX + 1) * 0.5 * width),
-      top: Math.round((focusY + 1) * 0.5 * height),
+      top: Math.round((focusY - 1) * -0.5 * height),
       width: width * 2,
       height: height * 2
     };

@@ -33,7 +33,7 @@ class FocusPointImageExtension extends DataExtension
     public function PercentageX()
     {
         if ($field = $this->owner->FocusPoint) {
-            return round(DBFocusPoint::focusCoordToOffset($field->getX()) * 100);
+            return round(DBFocusPoint::focusCoordToOffset('x', $field->getX()) * 100);
         }
         return 0;
     }
@@ -48,7 +48,7 @@ class FocusPointImageExtension extends DataExtension
     public function PercentageY()
     {
         if ($field = $this->owner->FocusPoint) {
-            return round(DBFocusPoint::focusCoordToOffset($field->getY()) * 100);
+            return round(DBFocusPoint::focusCoordToOffset('y', $field->getY()) * 100);
         }
         return 0;
     }
